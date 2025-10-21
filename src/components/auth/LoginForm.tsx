@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { authAPI } from "@/lib/api";
 
 export const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -12,27 +14,20 @@ export const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // TODO: Integrate with backend API
-      // const response = await fetch(`${API_URL}/auth/login`, {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ email, username, password }),
-      // });
-      
-      // Mock success for now
-      setTimeout(() => {
-        toast({
-          title: "Login successful",
-          description: "Welcome back!",
-        });
-        navigate("/feed");
-      }, 1000);
+      const response = await authAPI.login({ email, username, password });
+      login(response.access_token, response.refresh_token);
+      toast({
+        title: "Login successful",
+        description: "Welcome back!",
+      });
+      navigate("/");
     } catch (error) {
       toast({
         title: "Login failed",

@@ -5,6 +5,8 @@ import { OnboardingStep2 } from "./onboarding/OnboardingStep2";
 import { OnboardingStep3 } from "./onboarding/OnboardingStep3";
 import { OnboardingStep4 } from "./onboarding/OnboardingStep4";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { authAPI } from "@/lib/api";
 
 export type RegistrationData = {
   email: string;
@@ -26,6 +28,7 @@ export const RegisterForm = () => {
   });
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login } = useAuth();
 
   const updateFormData = (data: Partial<RegistrationData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
@@ -33,20 +36,16 @@ export const RegisterForm = () => {
 
   const handleComplete = async () => {
     try {
-      // TODO: Integrate with backend API
-      // const response = await fetch(`${API_URL}/auth/register`, {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(formData),
-      // });
-
+      const response = await authAPI.register(formData as RegistrationData);
+      login(response.access_token, response.refresh_token);
+      
       toast({
         title: "Account created successfully!",
         description: "Welcome to NewsFlow. Let's get you started.",
       });
       
       setTimeout(() => {
-        navigate("/feed");
+        navigate("/");
       }, 1000);
     } catch (error) {
       toast({
