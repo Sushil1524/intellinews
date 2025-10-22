@@ -94,11 +94,9 @@ const Index = () => {
 
               {/* Right Sidebar */}
               <aside className="space-y-4">
-                <div className="sticky top-20 space-y-4">
-                  <JoinCard />
-                  <TrendingTopics />
-                  <StudyToolsCard />
-                </div>
+                <JoinCard />
+                <TrendingTopics />
+                <StudyToolsCard />
               </aside>
             </div>
           </div>
