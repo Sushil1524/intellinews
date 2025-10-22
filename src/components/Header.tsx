@@ -13,14 +13,14 @@ export const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/80">
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2 font-bold text-xl">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-primary">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
             <Newspaper className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="bg-gradient-primary bg-clip-text text-transparent">
-            NewsFlow
+          <span className="text-primary">
+            IntelliNews
           </span>
         </Link>
 
