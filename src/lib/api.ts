@@ -224,3 +224,36 @@ export const adminAPI = {
     if (!response.ok) throw new Error("Failed to refresh feed");
   },
 };
+
+// Analytics API
+export const analyticsAPI = {
+  async getTrending(limit: number = 10): Promise<Article[]> {
+    const response = await fetchWithAuth(`/analytics/trending?limit=${limit}`);
+    if (!response.ok) throw new Error("Failed to fetch trending articles");
+    return response.json();
+  },
+
+  async getTopCategories(limit: number = 5): Promise<Array<{ category: string; count: number }>> {
+    const response = await fetchWithAuth(`/analytics/top-categories?limit=${limit}`);
+    if (!response.ok) throw new Error("Failed to fetch top categories");
+    return response.json();
+  },
+
+  async getDailyCounts(days: number = 7): Promise<Array<{ date: string; count: number }>> {
+    const response = await fetchWithAuth(`/analytics/daily-counts?days=${days}`);
+    if (!response.ok) throw new Error("Failed to fetch daily counts");
+    return response.json();
+  },
+
+  async getUserDashboard(): Promise<{
+    articles_read: number;
+    reading_streak: number;
+    total_time_minutes: number;
+    favorite_category: string;
+    recent_activity: Array<{ article_id: string; title: string; read_at: string }>;
+  }> {
+    const response = await fetchWithAuth("/analytics/dashboard");
+    if (!response.ok) throw new Error("Failed to fetch user dashboard");
+    return response.json();
+  },
+};

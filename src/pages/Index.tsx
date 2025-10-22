@@ -11,6 +11,7 @@ import { WelcomeBanner } from "@/components/WelcomeBanner";
 import { JoinCard } from "@/components/feed/JoinCard";
 import { TrendingTopics } from "@/components/feed/TrendingTopics";
 import { StudyToolsCard } from "@/components/feed/StudyToolsCard";
+import { UserStatsCard } from "@/components/feed/UserStatsCard";
 import { Button } from "@/components/ui/button";
 import { Article, articlesAPI } from "@/lib/api";
 import { RefreshCw, Search, SlidersHorizontal } from "lucide-react";
@@ -94,9 +95,19 @@ const Index = () => {
 
               {/* Right Sidebar */}
               <aside className="space-y-4">
-                <JoinCard />
-                <TrendingTopics />
-                <StudyToolsCard />
+                {isAuthenticated ? (
+                  <>
+                    <UserStatsCard />
+                    <TrendingTopics />
+                    <StudyToolsCard />
+                  </>
+                ) : (
+                  <>
+                    <JoinCard />
+                    <TrendingTopics />
+                    <StudyToolsCard />
+                  </>
+                )}
               </aside>
             </div>
           </div>
