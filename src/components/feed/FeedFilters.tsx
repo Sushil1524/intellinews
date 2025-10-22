@@ -3,14 +3,11 @@ import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 
 const categories = [
-  "Politics & Governance",
-  "Economics & Business",
-  "International Relations",
-  "Environment & Ecology",
-  "Science & Technology",
-  "Social Issues",
-  "History & Culture",
-  "Geography",
+  "Technology",
+  "Politics",
+  "Business",
+  "Health",
+  "Sports",
 ];
 
 type Props = {
