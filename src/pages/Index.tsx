@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
@@ -20,30 +20,84 @@ import { Input } from "@/components/ui/input";
 const Index = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [articles, setArticles] = useState<Article[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>();
+  const [nextCursor, setNextCursor] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showHero, setShowHero] = useState(true);
   const [sortBy, setSortBy] = useState<"hot" | "new" | "top">("hot");
   const [searchQuery, setSearchQuery] = useState("");
+  const observerTarget = useRef<HTMLDivElement>(null);
+  
+  // Get category from URL params
+  const selectedCategory = searchParams.get("category") || undefined;
+
+  const setSelectedCategory = useCallback((category?: string) => {
+    if (category) {
+      setSearchParams({ category });
+    } else {
+      setSearchParams({});
+    }
+  }, [setSearchParams]);
+
   useEffect(() => {
-    loadArticles();
+    loadArticles(true);
   }, [selectedCategory]);
-  const loadArticles = async () => {
-    setIsLoading(true);
+
+  const loadArticles = async (reset: boolean = false) => {
+    if (reset) {
+      setIsLoading(true);
+      setArticles([]);
+      setNextCursor(undefined);
+    } else {
+      setIsLoadingMore(true);
+    }
+
     try {
       const response = await articlesAPI.getArticles({
         limit: 20,
-        category: selectedCategory
+        category: selectedCategory,
+        cursor: reset ? undefined : nextCursor
       });
-      setArticles(response.articles || []);
+      
+      if (reset) {
+        setArticles(response.articles || []);
+      } else {
+        setArticles(prev => [...prev, ...(response.articles || [])]);
+      }
+      setNextCursor(response.next_cursor);
     } catch (error) {
       console.error("Failed to load articles:", error);
-      setArticles([]);
+      if (reset) setArticles([]);
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
     }
   };
+
+  // Infinite scroll observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && !isLoading && !isLoadingMore && nextCursor) {
+          loadArticles(false);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [isLoading, isLoadingMore, nextCursor]);
   return <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1">
@@ -80,15 +134,44 @@ const Index = () => {
                 <FeedFilters selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
 
                 {/* Articles */}
-                {isLoading ? <div className="text-center py-12">
+                {isLoading ? (
+                  <div className="text-center py-12">
                     <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
                     <p className="text-muted-foreground">Loading articles...</p>
-                  </div> : articles.length === 0 ? <div className="text-center py-12 bg-card rounded-lg border border-border">
+                  </div>
+                ) : articles.length === 0 ? (
+                  <div className="text-center py-12 bg-card rounded-lg border border-border">
                     <p className="text-muted-foreground mb-4">
                       No articles found. Make sure your backend is running at http://127.0.0.1:8000
                     </p>
-                    <Button onClick={loadArticles} variant="filled">Try Again</Button>
-                  </div> : articles.map(article => <ArticleCard key={article._id} article={article} onArticleClick={(article) => navigate(`/article/${article._id}`)} />)}
+                    <Button onClick={() => loadArticles(true)} variant="filled">Try Again</Button>
+                  </div>
+                ) : (
+                  <>
+                    {articles.map(article => (
+                      <ArticleCard 
+                        key={article._id} 
+                        article={article} 
+                        onArticleClick={(article) => navigate(`/article/${article._id}`)} 
+                      />
+                    ))}
+                    
+                    {/* Infinite scroll trigger */}
+                    <div ref={observerTarget} className="py-4">
+                      {isLoadingMore && (
+                        <div className="text-center">
+                          <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-primary" />
+                          <p className="text-sm text-muted-foreground">Loading more...</p>
+                        </div>
+                      )}
+                      {!nextCursor && articles.length > 0 && (
+                        <p className="text-center text-sm text-muted-foreground">
+                          You've reached the end
+                        </p>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Right Sidebar */}

@@ -8,8 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { authAPI } from "@/lib/api";
 
 export const LoginForm = () => {
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -21,7 +20,13 @@ export const LoginForm = () => {
     setIsLoading(true);
 
     try {
-      const response = await authAPI.login({ email, username, password });
+      // Determine if identifier is email or username
+      const isEmail = identifier.includes("@");
+      const response = await authAPI.login({ 
+        email: isEmail ? identifier : "",
+        username: isEmail ? "" : identifier,
+        password 
+      });
       login(response.access_token, response.refresh_token);
       toast({
         title: "Login successful",
@@ -42,24 +47,13 @@ export const LoginForm = () => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="identifier">Email or Username</Label>
         <Input
-          id="email"
-          type="email"
-          placeholder="you@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="username">Username</Label>
-        <Input
-          id="username"
+          id="identifier"
           type="text"
-          placeholder="johndoe"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          placeholder="you@example.com or username"
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
           required
         />
       </div>
