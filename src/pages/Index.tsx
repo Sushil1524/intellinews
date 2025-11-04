@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
@@ -6,7 +7,6 @@ import { Features } from "@/components/Features";
 import { ArticleCard } from "@/components/feed/ArticleCard";
 import { FeedFilters } from "@/components/feed/FeedFilters";
 import { FeedTabs } from "@/components/feed/FeedTabs";
-import { ArticleDialog } from "@/components/feed/ArticleDialog";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 import { JoinCard } from "@/components/feed/JoinCard";
 import { TrendingTopics } from "@/components/feed/TrendingTopics";
@@ -18,12 +18,10 @@ import { RefreshCw, Search, SlidersHorizontal } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
 const Index = () => {
-  const {
-    isAuthenticated
-  } = useAuth();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [articles, setArticles] = useState<Article[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>();
-  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showHero, setShowHero] = useState(true);
   const [sortBy, setSortBy] = useState<"hot" | "new" | "top">("hot");
@@ -90,7 +88,7 @@ const Index = () => {
                       No articles found. Make sure your backend is running at http://127.0.0.1:8000
                     </p>
                     <Button onClick={loadArticles} variant="filled">Try Again</Button>
-                  </div> : articles.map(article => <ArticleCard key={article._id} article={article} onArticleClick={setSelectedArticle} />)}
+                  </div> : articles.map(article => <ArticleCard key={article._id} article={article} onArticleClick={(article) => navigate(`/article/${article._id}`)} />)}
               </div>
 
               {/* Right Sidebar */}
@@ -114,9 +112,6 @@ const Index = () => {
         </section>
       </main>
       <Footer />
-
-      {/* Article Detail Dialog */}
-      <ArticleDialog article={selectedArticle} open={!!selectedArticle} onOpenChange={open => !open && setSelectedArticle(null)} />
     </div>;
 };
 export default Index;
