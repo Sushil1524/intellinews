@@ -38,7 +38,12 @@ export const OnboardingStep4 = ({ data, onComplete, onBack }: Props) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    await onComplete({ news_preferences: preferences });
+    try {
+      await onComplete({ news_preferences: preferences });
+    } catch (error) {
+      // Error is already handled in parent, just reset submitting state
+      setIsSubmitting(false);
+    }
   };
 
   return (

@@ -44,15 +44,15 @@ export const RegisterForm = () => {
         description: "Welcome to NewsFlow. Let's get you started.",
       });
       
-      setTimeout(() => {
-        navigate("/");
-      }, 1000);
+      navigate("/");
     } catch (error) {
+      console.error("Registration error:", error);
       toast({
         title: "Registration failed",
-        description: "Please try again.",
+        description: error instanceof Error ? error.message : "Please check your connection and try again.",
         variant: "destructive",
       });
+      throw error; // Re-throw to prevent the onComplete callback from completing
     }
   };
 
