@@ -17,6 +17,13 @@ export type RegistrationData = {
   vocab_proficiency: "beginner" | "intermediate" | "advanced";
   daily_practice_target: number;
   news_preferences: Record<string, boolean>;
+  role: "user";
+  gamification: {
+    points: number;
+    streak: number;
+  };
+  vocab_cards: any[];
+  bookmarks: any[];
 };
 
 export const RegisterForm = () => {
@@ -25,6 +32,13 @@ export const RegisterForm = () => {
     vocab_proficiency: "beginner",
     daily_practice_target: 10,
     news_preferences: {},
+    role: "user",
+    gamification: {
+      points: 0,
+      streak: 0,
+    },
+    vocab_cards: [],
+    bookmarks: [],
   });
   const navigate = useNavigate();
   const { toast } = useToast();

@@ -6,11 +6,18 @@ export type UserCreate = {
   email: string;
   username: string;
   password: string;
-  full_name?: string;
-  dob?: string;
-  vocab_proficiency?: "beginner" | "intermediate" | "advanced";
-  daily_practice_target?: number;
-  news_preferences?: Record<string, boolean>;
+  full_name: string;
+  dob: string;
+  vocab_proficiency: "beginner" | "intermediate" | "advanced";
+  daily_practice_target: number;
+  news_preferences: Record<string, boolean>;
+  role: "user";
+  gamification: {
+    points: number;
+    streak: number;
+  };
+  vocab_cards: any[];
+  bookmarks: any[];
 };
 
 export type UserLogin = {
