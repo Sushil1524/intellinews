@@ -59,8 +59,7 @@ export const OnboardingStep4 = ({ data, onComplete, onBack }: Props) => {
         {newsCategories.map((category) => (
           <div
             key={category.id}
-            className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer"
-            onClick={() => togglePreference(category.id)}
+            className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors"
           >
             <Checkbox
               id={category.id}
