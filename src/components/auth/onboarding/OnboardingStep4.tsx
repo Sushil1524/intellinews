@@ -6,14 +6,11 @@ import { ArrowLeft, Check } from "lucide-react";
 import { RegistrationData } from "../RegisterForm";
 
 const newsCategories = [
-  { id: "politics", label: "Politics & Governance" },
-  { id: "economics", label: "Economics & Business" },
-  { id: "international", label: "International Relations" },
-  { id: "environment", label: "Environment & Ecology" },
-  { id: "science", label: "Science & Technology" },
-  { id: "social", label: "Social Issues" },
-  { id: "history", label: "History & Culture" },
-  { id: "geography", label: "Geography" },
+  { id: "Technology", label: "Technology" },
+  { id: "Politics", label: "Politics" },
+  { id: "Business", label: "Business" },
+  { id: "Health", label: "Health" },
+  { id: "Sports", label: "Sports" },
 ];
 
 type Props = {

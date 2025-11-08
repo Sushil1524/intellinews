@@ -13,7 +13,7 @@ import { TrendingTopics } from "@/components/feed/TrendingTopics";
 import { StudyToolsCard } from "@/components/feed/StudyToolsCard";
 import { UserStatsCard } from "@/components/feed/UserStatsCard";
 import { Button } from "@/components/ui/button";
-import { Article, articlesAPI } from "@/lib/api";
+import { Article, articlesAPI, authAPI } from "@/lib/api";
 import { RefreshCw, Search, SlidersHorizontal } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,7 @@ const Index = () => {
   const [sortBy, setSortBy] = useState<"hot" | "new" | "top">("hot");
   const [searchQuery, setSearchQuery] = useState("");
   const observerTarget = useRef<HTMLDivElement>(null);
+  const [userPreferences, setUserPreferences] = useState<Record<string, boolean>>({});
   
   // Get category from URL params
   const selectedCategory = searchParams.get("category") || undefined;
@@ -40,6 +41,34 @@ const Index = () => {
       setSearchParams({});
     }
   }, [setSearchParams]);
+
+  // Load user preferences on mount if authenticated
+  useEffect(() => {
+    const loadUserPreferences = async () => {
+      if (isAuthenticated) {
+        try {
+          const profile = await authAPI.getProfile();
+          if (profile.news_preferences) {
+            setUserPreferences(profile.news_preferences);
+            
+            // Auto-select first preferred category if no category is selected
+            if (!selectedCategory) {
+              const preferredCategories = Object.keys(profile.news_preferences).filter(
+                key => profile.news_preferences[key]
+              );
+              if (preferredCategories.length > 0) {
+                setSelectedCategory(preferredCategories[0]);
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Failed to load user preferences:", error);
+        }
+      }
+    };
+    
+    loadUserPreferences();
+  }, [isAuthenticated]);
 
   useEffect(() => {
     loadArticles(true);

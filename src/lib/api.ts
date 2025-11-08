@@ -118,6 +118,12 @@ export const authAPI = {
     if (!response.ok) throw new Error("Login failed");
     return response.json();
   },
+
+  async getProfile(): Promise<UserCreate> {
+    const response = await fetchWithAuth("/auth/me");
+    if (!response.ok) throw new Error("Failed to fetch profile");
+    return response.json();
+  },
 };
 
 // Articles API
