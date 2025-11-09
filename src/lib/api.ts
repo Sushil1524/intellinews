@@ -124,6 +124,15 @@ export const authAPI = {
     if (!response.ok) throw new Error("Failed to fetch profile");
     return response.json();
   },
+
+  async updateProfile(data: Partial<UserCreate>): Promise<UserCreate> {
+    const response = await fetchWithAuth("/auth/me", {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Failed to update profile");
+    return response.json();
+  },
 };
 
 // Articles API
