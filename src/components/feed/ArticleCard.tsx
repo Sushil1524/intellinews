@@ -21,14 +21,15 @@ import { articlesAPI, bookmarksAPI } from "@/lib/api";
 type Props = {
   article: Article;
   onArticleClick?: (article: Article) => void;
+  initialIsBookmarked?: boolean;
 };
 
-export const ArticleCard = ({ article, onArticleClick }: Props) => {
+export const ArticleCard = ({ article, onArticleClick, initialIsBookmarked = false }: Props) => {
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [votes, setVotes] = useState({ upvotes: article.upvotes, downvotes: article.downvotes });
   const [userVote, setUserVote] = useState<"up" | "down" | null>(null);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked);
 
   const handleVote = async (type: "up" | "down") => {
     if (!isAuthenticated) {
