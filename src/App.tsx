@@ -10,6 +10,7 @@ import Profile from "./pages/Profile";
 import Analytics from "./pages/Analytics";
 import Bookmarks from "./pages/Bookmarks";
 import Article from "./pages/Article";
+import VocabPractice from "./pages/VocabPractice";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/bookmarks" element={<Bookmarks />} />
             <Route path="/article/:id" element={<Article />} />
+            <Route path="/vocab-practice" element={<VocabPractice />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

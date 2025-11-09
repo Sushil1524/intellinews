@@ -208,23 +208,75 @@ export const commentsAPI = {
 // Bookmarks API
 export const bookmarksAPI = {
   async getBookmarks(): Promise<Article[]> {
-    const response = await fetchWithAuth("/bookmarks/bookmarks/");
+    const response = await fetchWithAuth("/bookmarks/");
     if (!response.ok) throw new Error("Failed to fetch bookmarks");
     return response.json();
   },
 
   async addBookmark(articleId: string): Promise<void> {
-    const response = await fetchWithAuth(`/bookmarks/bookmarks/${articleId}`, {
+    const response = await fetchWithAuth(`/bookmarks/${articleId}`, {
       method: "POST",
     });
     if (!response.ok) throw new Error("Failed to add bookmark");
   },
 
   async removeBookmark(articleId: string): Promise<void> {
-    const response = await fetchWithAuth(`/bookmarks/bookmarks/${articleId}`, {
+    const response = await fetchWithAuth(`/bookmarks/${articleId}`, {
       method: "DELETE",
     });
     if (!response.ok) throw new Error("Failed to remove bookmark");
+  },
+};
+
+// Vocab types
+export type VocabCard = {
+  word: string;
+  meaning?: string;
+  example?: string;
+  added_at: string;
+  level: number;
+  proficiency: string;
+  next_review_date: string;
+  last_practiced?: string;
+  is_learned: boolean;
+};
+
+export type VocabProgress = {
+  summary: {
+    total_words: number;
+    total_learned: number;
+    due_today: number;
+    practiced_today: number;
+    daily_target: number;
+    completion_rate: number;
+  };
+  gamification: {
+    points: number;
+    streak: number;
+  };
+};
+
+// Vocab API
+export const vocabAPI = {
+  async getTodayCards(): Promise<{ today_cards: VocabCard[]; daily_target: number }> {
+    const response = await fetchWithAuth("/vocab/today");
+    if (!response.ok) throw new Error("Failed to fetch today's vocab");
+    return response.json();
+  },
+
+  async markPracticeDone(words: string[]): Promise<{ message: string }> {
+    const response = await fetchWithAuth("/vocab/practice/done", {
+      method: "POST",
+      body: JSON.stringify({ words }),
+    });
+    if (!response.ok) throw new Error("Failed to mark practice done");
+    return response.json();
+  },
+
+  async getProgress(): Promise<VocabProgress> {
+    const response = await fetchWithAuth("/vocab/progress");
+    if (!response.ok) throw new Error("Failed to fetch vocab progress");
+    return response.json();
   },
 };
 

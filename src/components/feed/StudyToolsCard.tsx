@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 
 const studyTools = [
-  { icon: BookOpen, label: "Practice Mains Answer", path: "/study-tools/mains" },
+  { icon: BookOpen, label: "Daily Vocabulary Practice", path: "/vocab-practice" },
   { icon: GraduationCap, label: "Vocabulary Quiz", path: "/study-tools/vocabulary" },
   { icon: FileText, label: "Historical Summary", path: "/study-tools/summary" },
 ];
