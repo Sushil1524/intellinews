@@ -72,7 +72,7 @@ const Index = () => {
 
   useEffect(() => {
     loadArticles(true);
-  }, [selectedCategory]);
+  }, [selectedCategory, sortBy, searchQuery]);
 
   const loadArticles = async (reset: boolean = false) => {
     if (reset) {
@@ -87,7 +87,9 @@ const Index = () => {
       const response = await articlesAPI.getArticles({
         limit: 20,
         category: selectedCategory,
-        cursor: reset ? undefined : nextCursor
+        cursor: reset ? undefined : nextCursor,
+        search: searchQuery || undefined,
+        sort_by: sortBy
       });
       
       if (reset) {

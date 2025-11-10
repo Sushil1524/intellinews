@@ -143,12 +143,16 @@ export const articlesAPI = {
     limit?: number;
     category?: string;
     tag?: string;
+    search?: string;
+    sort_by?: "hot" | "new" | "top";
   }): Promise<{ articles: Article[]; next_cursor?: string }> {
     const searchParams = new URLSearchParams();
     if (params?.cursor) searchParams.set("cursor", params.cursor);
     if (params?.limit) searchParams.set("limit", params.limit.toString());
     if (params?.category) searchParams.set("category", params.category);
     if (params?.tag) searchParams.set("tag", params.tag);
+    if (params?.search) searchParams.set("search", params.search);
+    if (params?.sort_by) searchParams.set("sort_by", params.sort_by);
 
     const response = await fetchWithAuth(`/article/?${searchParams}`);
     if (!response.ok) throw new Error("Failed to fetch articles");
