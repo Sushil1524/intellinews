@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
@@ -21,15 +22,10 @@ const Index = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [nextCursor, setNextCursor] = useState<string | undefined>();
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showHero, setShowHero] = useState(true);
   const [sortBy, setSortBy] = useState<"hot" | "new" | "top">("hot");
   const [searchQuery, setSearchQuery] = useState("");
   const observerTarget = useRef<HTMLDivElement>(null);
-  const [userPreferences, setUserPreferences] = useState<Record<string, boolean>>({});
   
   // Get category from URL params
   const selectedCategory = searchParams.get("category") || undefined;
@@ -42,77 +38,59 @@ const Index = () => {
     }
   }, [setSearchParams]);
 
-  // Load user preferences on mount if authenticated
+  // Fetch user preferences with React Query
+  const { data: userProfile } = useQuery({
+    queryKey: ['userProfile'],
+    queryFn: () => authAPI.getProfile(),
+    enabled: isAuthenticated,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+
+  // Auto-select first preferred category if no category is selected
   useEffect(() => {
-    const loadUserPreferences = async () => {
-      if (isAuthenticated) {
-        try {
-          const profile = await authAPI.getProfile();
-          if (profile.news_preferences) {
-            setUserPreferences(profile.news_preferences);
-            
-            // Auto-select first preferred category if no category is selected
-            if (!selectedCategory) {
-              const preferredCategories = Object.keys(profile.news_preferences).filter(
-                key => profile.news_preferences[key]
-              );
-              if (preferredCategories.length > 0) {
-                setSelectedCategory(preferredCategories[0]);
-              }
-            }
-          }
-        } catch (error) {
-          console.error("Failed to load user preferences:", error);
-        }
+    if (userProfile?.news_preferences && !selectedCategory) {
+      const preferredCategories = Object.keys(userProfile.news_preferences).filter(
+        key => userProfile.news_preferences[key]
+      );
+      if (preferredCategories.length > 0) {
+        setSelectedCategory(preferredCategories[0]);
       }
-    };
-    
-    loadUserPreferences();
-  }, [isAuthenticated]);
-
-  useEffect(() => {
-    loadArticles(true);
-  }, [selectedCategory, sortBy, searchQuery]);
-
-  const loadArticles = async (reset: boolean = false) => {
-    if (reset) {
-      setIsLoading(true);
-      setArticles([]);
-      setNextCursor(undefined);
-    } else {
-      setIsLoadingMore(true);
     }
+  }, [userProfile, selectedCategory, setSelectedCategory]);
 
-    try {
-      const response = await articlesAPI.getArticles({
-        limit: 20,
-        category: selectedCategory,
-        cursor: reset ? undefined : nextCursor,
-        search: searchQuery || undefined,
-        sort_by: sortBy
-      });
-      
-      if (reset) {
-        setArticles(response.articles || []);
-      } else {
-        setArticles(prev => [...prev, ...(response.articles || [])]);
-      }
-      setNextCursor(response.next_cursor);
-    } catch (error) {
-      console.error("Failed to load articles:", error);
-      if (reset) setArticles([]);
-    } finally {
-      setIsLoading(false);
-      setIsLoadingMore(false);
-    }
-  };
+  // Fetch articles with infinite query
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+    refetch
+  } = useInfiniteQuery({
+    queryKey: ['articles', selectedCategory, sortBy, searchQuery],
+    queryFn: ({ pageParam }) => articlesAPI.getArticles({
+      limit: 20,
+      category: selectedCategory,
+      cursor: pageParam,
+      search: searchQuery || undefined,
+      sort_by: sortBy
+    }),
+    getNextPageParam: (lastPage) => lastPage.next_cursor,
+    initialPageParam: undefined,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+
+  // Flatten articles from all pages
+  const articles = data?.pages.flatMap(page => page.articles) || [];
 
   // Infinite scroll observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       entries => {
-        if (entries[0].isIntersecting && !isLoading && !isLoadingMore && nextCursor) {
-          loadArticles(false);
+        if (entries[0].isIntersecting && !isLoading && !isFetchingNextPage && hasNextPage) {
+          fetchNextPage();
         }
       },
       { threshold: 0.1 }
@@ -128,7 +106,7 @@ const Index = () => {
         observer.unobserve(currentTarget);
       }
     };
-  }, [isLoading, isLoadingMore, nextCursor]);
+  }, [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage]);
   return <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1">
@@ -170,12 +148,18 @@ const Index = () => {
                     <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
                     <p className="text-muted-foreground">Loading articles...</p>
                   </div>
+                ) : isError ? (
+                  <div className="text-center py-12 bg-card rounded-lg border border-border">
+                    <p className="text-muted-foreground mb-4">
+                      Failed to load articles. Please try again.
+                    </p>
+                    <Button onClick={() => refetch()} variant="filled">Try Again</Button>
+                  </div>
                 ) : articles.length === 0 ? (
                   <div className="text-center py-12 bg-card rounded-lg border border-border">
                     <p className="text-muted-foreground mb-4">
-                      No articles found. Make sure your backend is running at http://127.0.0.1:8000
+                      No articles found.
                     </p>
-                    <Button onClick={() => loadArticles(true)} variant="filled">Try Again</Button>
                   </div>
                 ) : (
                   <>
@@ -189,13 +173,13 @@ const Index = () => {
                     
                     {/* Infinite scroll trigger */}
                     <div ref={observerTarget} className="py-4">
-                      {isLoadingMore && (
+                      {isFetchingNextPage && (
                         <div className="text-center">
                           <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-primary" />
                           <p className="text-sm text-muted-foreground">Loading more...</p>
                         </div>
                       )}
-                      {!nextCursor && articles.length > 0 && (
+                      {!hasNextPage && articles.length > 0 && (
                         <p className="text-center text-sm text-muted-foreground">
                           You've reached the end
                         </p>
