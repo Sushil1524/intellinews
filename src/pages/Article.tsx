@@ -135,16 +135,30 @@ export default function Article() {
               </div>
             </header>
 
+            {/* Article Image */}
+            {article.image_url && (
+              <div className="rounded-lg overflow-hidden border border-border">
+                <img 
+                  src={article.image_url} 
+                  alt={article.title}
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+            )}
+
             {/* AI Summary */}
             {article.summary && (
-              <div className="rounded-lg bg-primary/5 border border-primary/10 p-6">
-                <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                  <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-primary/10 text-xs">
-                    AI
-                  </span>
-                  Summary
-                </h3>
-                <p className="text-sm leading-relaxed">{article.summary}</p>
+              <div className="space-y-4">
+                <h2 className="text-2xl font-semibold">Summary</h2>
+                <div className="prose prose-lg max-w-none dark:prose-invert">
+                  {article.summary.split('\n').map((paragraph, index) => (
+                    paragraph.trim() && (
+                      <p key={index} className="leading-relaxed text-foreground">
+                        {paragraph}
+                      </p>
+                    )
+                  ))}
+                </div>
               </div>
             )}
 
@@ -158,13 +172,6 @@ export default function Article() {
                 ))}
               </div>
             )}
-
-            {/* Content */}
-            <div className="prose prose-lg max-w-none dark:prose-invert">
-              <p className="whitespace-pre-wrap leading-relaxed text-foreground">
-                {article.content}
-              </p>
-            </div>
 
             <Separator className="my-8" />
 

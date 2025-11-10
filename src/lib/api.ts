@@ -42,6 +42,7 @@ export type Article = {
   category?: string;
   tags: string[];
   sentiment?: string;
+  image_url?: string;
   author_email: string;
   upvotes: number;
   downvotes: number;
