@@ -8,6 +8,15 @@ const categories = [
   "Business",
   "Health",
   "Sports",
+  "Entertainment",
+  "Science",
+  "Crime",
+  "Education",
+  "Environment",
+  "Travel",
+  "Lifestyle",
+  "Obituary",
+  "General",
 ];
 
 type Props = {
