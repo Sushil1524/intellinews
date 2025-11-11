@@ -135,29 +135,31 @@ export default function Article() {
               </div>
             </header>
 
-            {/* Article Image */}
-            {article.image_url && (
-              <div className="rounded-lg overflow-hidden border border-border">
-                <img 
-                  src={article.image_url} 
-                  alt={article.title}
-                  className="w-full h-auto object-cover"
-                />
-              </div>
-            )}
-
-            {/* AI Summary */}
+            {/* AI Summary with Image */}
             {article.summary && (
               <div className="space-y-4">
                 <h2 className="text-2xl font-semibold">Summary</h2>
-                <div className="prose prose-lg max-w-none dark:prose-invert">
-                  {article.summary.split('\n').map((paragraph, index) => (
-                    paragraph.trim() && (
-                      <p key={index} className="leading-relaxed text-foreground">
-                        {paragraph}
-                      </p>
-                    )
-                  ))}
+                <div className={`flex gap-6 ${article.image_url ? 'flex-col md:flex-row' : ''}`}>
+                  <div className={`prose prose-lg max-w-none dark:prose-invert ${article.image_url ? 'md:w-[65%]' : 'w-full'}`}>
+                    {article.summary.split('\n').map((paragraph, index) => (
+                      paragraph.trim() && (
+                        <p key={index} className="leading-relaxed text-foreground">
+                          {paragraph}
+                        </p>
+                      )
+                    ))}
+                  </div>
+                  {article.image_url && (
+                    <div className="md:w-[35%] flex-shrink-0">
+                      <div className="rounded-lg overflow-hidden border border-border h-full">
+                        <img 
+                          src={article.image_url} 
+                          alt={article.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
