@@ -37,9 +37,6 @@ export const Header = () => {
           <Link to="/" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
             Feed
           </Link>
-          <Link to="/study-tools" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
-            Study Tools
-          </Link>
         </nav>
 
         <div className="flex items-center gap-2">

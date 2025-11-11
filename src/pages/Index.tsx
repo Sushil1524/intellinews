@@ -12,7 +12,7 @@ import { DateFilters, DateFilter } from "@/components/feed/DateFilters";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 import { JoinCard } from "@/components/feed/JoinCard";
 import { TrendingTopics } from "@/components/feed/TrendingTopics";
-import { StudyToolsCard } from "@/components/feed/StudyToolsCard";
+
 import { UserStatsCard } from "@/components/feed/UserStatsCard";
 import { Button } from "@/components/ui/button";
 import { Article, articlesAPI, authAPI } from "@/lib/api";
@@ -206,13 +206,11 @@ const Index = () => {
                   <>
                     <UserStatsCard />
                     <TrendingTopics />
-                    <StudyToolsCard />
                   </>
                 ) : (
                   <>
                     <JoinCard />
                     <TrendingTopics />
-                    <StudyToolsCard />
                   </>
                 )}
               </aside>
