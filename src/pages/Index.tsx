@@ -8,6 +8,7 @@ import { Features } from "@/components/Features";
 import { ArticleCard } from "@/components/feed/ArticleCard";
 import { FeedFilters } from "@/components/feed/FeedFilters";
 import { FeedTabs } from "@/components/feed/FeedTabs";
+import { DateFilters, DateFilter } from "@/components/feed/DateFilters";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 import { JoinCard } from "@/components/feed/JoinCard";
 import { TrendingTopics } from "@/components/feed/TrendingTopics";
@@ -26,6 +27,7 @@ const Index = () => {
   const [sortBy, setSortBy] = useState<"hot" | "new" | "top">("hot");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const observerTarget = useRef<HTMLDivElement>(null);
   
   // Debounce search query
@@ -78,13 +80,14 @@ const Index = () => {
     isError,
     refetch
   } = useInfiniteQuery({
-    queryKey: ['articles', selectedCategory, sortBy, debouncedSearch],
+    queryKey: ['articles', selectedCategory, sortBy, debouncedSearch, dateFilter],
     queryFn: ({ pageParam }) => articlesAPI.getArticles({
       limit: 20,
       category: selectedCategory,
       cursor: pageParam,
       search: debouncedSearch || undefined,
-      sort_by: sortBy
+      sort_by: sortBy,
+      date_filter: dateFilter !== "all" ? dateFilter : undefined
     }),
     getNextPageParam: (lastPage) => lastPage.next_cursor,
     initialPageParam: undefined,
@@ -143,9 +146,7 @@ const Index = () => {
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input placeholder="Search articles..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9 bg-surface border-border" />
                     </div>
-                    <Button variant="outlined" size="icon">
-                      <SlidersHorizontal className="h-4 w-4" />
-                    </Button>
+                    <DateFilters selectedFilter={dateFilter} onFilterChange={setDateFilter} />
                   </div>
                 </div>
 

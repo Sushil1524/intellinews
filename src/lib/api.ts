@@ -145,6 +145,7 @@ export const articlesAPI = {
     tag?: string;
     search?: string;
     sort_by?: "hot" | "new" | "top";
+    date_filter?: string;
   }): Promise<{ articles: Article[]; next_cursor?: string }> {
     const searchParams = new URLSearchParams();
     if (params?.cursor) searchParams.set("cursor", params.cursor);
@@ -153,6 +154,7 @@ export const articlesAPI = {
     if (params?.tag) searchParams.set("tag", params.tag);
     if (params?.search) searchParams.set("search", params.search);
     if (params?.sort_by) searchParams.set("sort_by", params.sort_by);
+    if (params?.date_filter) searchParams.set("date_filter", params.date_filter);
 
     const response = await fetchWithAuth(`/article/?${searchParams}`);
     if (!response.ok) throw new Error("Failed to fetch articles");
