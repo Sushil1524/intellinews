@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/Header";
@@ -25,7 +25,17 @@ const Index = () => {
   const [showHero, setShowHero] = useState(true);
   const [sortBy, setSortBy] = useState<"hot" | "new" | "top">("hot");
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const observerTarget = useRef<HTMLDivElement>(null);
+  
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
   
   // Get category from URL params
   const selectedCategory = searchParams.get("category") || undefined;
@@ -68,12 +78,12 @@ const Index = () => {
     isError,
     refetch
   } = useInfiniteQuery({
-    queryKey: ['articles', selectedCategory, sortBy, searchQuery],
+    queryKey: ['articles', selectedCategory, sortBy, debouncedSearch],
     queryFn: ({ pageParam }) => articlesAPI.getArticles({
       limit: 20,
       category: selectedCategory,
       cursor: pageParam,
-      search: searchQuery || undefined,
+      search: debouncedSearch || undefined,
       sort_by: sortBy
     }),
     getNextPageParam: (lastPage) => lastPage.next_cursor,
